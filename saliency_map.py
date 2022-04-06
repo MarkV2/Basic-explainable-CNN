@@ -1,4 +1,4 @@
-def do_salience(image, label, model, loss_fn, cmap = plt.cm.gray):
+def saliency_map(image, label, model, loss_fn, cmap = plt.cm.afmhot):
     image = tf.expand_dims(image, [0])
     label = tf.expand_dims(label, [0])
 
@@ -12,28 +12,23 @@ def do_salience(image, label, model, loss_fn, cmap = plt.cm.gray):
     grayscale_tensor = tf.reduce_sum(tf.abs(gradients), axis=-1)
 
     normalized_tensor = tf.cast(255 * (grayscale_tensor - tf.reduce_min(grayscale_tensor)) / (tf.reduce_max(grayscale_tensor) - tf.reduce_min(grayscale_tensor)), tf.uint8)
-
     normalized_tensor = tf.squeeze(normalized_tensor)
 
-    # To superimpose
-    image = np.reshape(image, image[0].shape)
-    gradient_color = cv2.applyColorMap(normalized_tensor.numpy(), cv2.COLORMAP_HOT)
-    gradient_color = gradient_color / 255.0
-    
-    if image.shape[-1] != 3:
-        image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
-
-    superimposed_image = cv2.addWeighted(image.astype('float64'), 0.5, gradient_color, 0.5, 0.0)
+    #
+    # Visualisations
+    #
 
     titles = ['Original image', 'Saliency heatmap', 'Overlay']
-    images = [image, normalized_tensor, superimposed_image]
-    cmaps = [None, cmap, None]
+    images = [[tf.squeeze(image)], [normalized_tensor], (normalized_tensor, tf.squeeze(image))]
+    cmaps = [[None], [cmap], (cmap, None)]
+    alphas = [[1], [1], (1, 0.4)]
 
     plt.figure(figsize = (8, 8))
     for i in range(3):
         plt.subplot(1, 3, i+1)
         plt.axis('off')
         plt.title(titles[i])
-        plt.imshow(images[i], cmap=cmaps[i])
+        for j in range(len(images[i])):
+            plt.imshow(images[i][j], cmap = cmaps[i][j], alpha = alphas[i][j])
     plt.tight_layout()
     plt.show()
