@@ -1,4 +1,4 @@
-def do_salience(image, model, label, loss_fn):
+def do_salience(image, label, model, loss_fn, cmap = plt.cm.gray):
     image = tf.expand_dims(image, [0])
     label = tf.expand_dims(label, [0])
 
@@ -23,21 +23,17 @@ def do_salience(image, model, label, loss_fn):
     if image.shape[-1] != 3:
         image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
 
-    super_imposed = cv2.addWeighted(image.astype('float64'), 0.5, gradient_color, 0.5, 0.0)
+    superimposed_image = cv2.addWeighted(image.astype('float64'), 0.5, gradient_color, 0.5, 0.0)
 
-    plt.figure(figsize = (10, 10))
-    plt.subplot(1, 3, 1)
-    plt.axis('off')
-    plt.title('Original Image')
-    plt.imshow(image)
+    titles = ['Original image', 'Saliency heatmap', 'Overlay']
+    images = [image, normalized_tensor, superimposed_image]
+    cmaps = [None, cmap, None]
 
-    plt.subplot(1, 3, 2)
-    plt.axis('off')
-    plt.title('Saliency heatmap')
-    plt.imshow(normalized_tensor, cmap='gray')
-
-    plt.subplot(1, 3, 3)
-    plt.axis('off')
-    plt.title('Superimposed heatmap')
-    plt.imshow(super_imposed)
+    plt.figure(figsize = (8, 8))
+    for i in range(3):
+        plt.subplot(1, 3, i+1)
+        plt.axis('off')
+        plt.title(titles[i])
+        plt.imshow(images[i], cmap=cmaps[i])
+    plt.tight_layout()
     plt.show()
