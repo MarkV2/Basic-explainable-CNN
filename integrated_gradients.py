@@ -1,5 +1,6 @@
-def integrated_gradients(image, label, baseline, model, loss_fn, cmap = plt.cm.inferno, kernel_size = None, sigma = None, m_steps = 50, batch_size = 32):
-    # NOTE: if baseline == 'blur', then kernel_size and sigma must be specified
+def integrated_gradients(image, label, baseline, model, loss_fn, cmap = plt.cm.inferno, kernel_size = 9, sigma = 3, m_steps = 50, batch_size = 32):
+    # NOTE: kernel_size and sigma was chosen randomly
+    # Both kernel_size and sigma are necessary for baseline = 'blur'
     if baseline == 'black':
         baseline = tf.zeros_like(image)
     elif baseline == 'white':
